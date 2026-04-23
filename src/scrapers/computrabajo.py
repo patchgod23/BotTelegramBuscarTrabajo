@@ -15,8 +15,6 @@ def scrape_computrabajo(search_term):
         "Referer": "https://cl.computrabajo.com/"
     }
     
-    # Computrabajo format: cl.computrabajo.com/trabajos-de-python
-    # For multiple words: trabajos-de-backend-developer
     formatted_term = urllib.parse.quote_plus(search_term).replace('+', '-')
     url = f"https://cl.computrabajo.com/trabajos-de-{formatted_term}?pubdate=7"
     
@@ -24,12 +22,9 @@ def scrape_computrabajo(search_term):
         r = requests.get(url, headers=headers, timeout=15)
         soup = BeautifulSoup(r.text, "html.parser")
         
-        # Computrabajo uses articles with class 'box_offer' or similar. 
-        # Inside there's an <a> tag with class 'js-o-link'
         links = soup.find_all("a", class_="js-o-link")
         
-        if not links: # fallback
-            # Look for typical job links 
+        if not links:
             links = soup.find_all("a", href=re.compile(r'/ofertas-de-trabajo/'))
             
         for link in links:
@@ -39,7 +34,6 @@ def scrape_computrabajo(search_term):
                 if not href.startswith("http"):
                     href = "https://cl.computrabajo.com" + href
                 
-                # Check for uniqueness if there are duplicate links on the page
                 jobs_found.append({
                     "title": title,
                     "url": href,

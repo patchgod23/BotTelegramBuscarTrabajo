@@ -5,14 +5,23 @@ import requests
 import os
 import logging
 from dotenv import load_dotenv
-from database import init_db, is_job_seen, mark_job_seen
-from ranking import calculate_ranking
 
-# Importar scrapers
-from scrapers.getonboard import scrape_getonboard
-from scrapers.laborum import scrape_laborum
-from scrapers.linkedin import scrape_linkedin
-from scrapers.computrabajo import scrape_computrabajo
+# Relative imports from src
+try:
+    from .database import init_db, is_job_seen, mark_job_seen
+    from .ranking import calculate_ranking
+    from .scrapers.getonboard import scrape_getonboard
+    from .scrapers.laborum import scrape_laborum
+    from .scrapers.linkedin import scrape_linkedin
+    from .scrapers.computrabajo import scrape_computrabajo
+except ImportError:
+    # If running as script
+    from database import init_db, is_job_seen, mark_job_seen
+    from ranking import calculate_ranking
+    from scrapers.getonboard import scrape_getonboard
+    from scrapers.laborum import scrape_laborum
+    from scrapers.linkedin import scrape_linkedin
+    from scrapers.computrabajo import scrape_computrabajo
 
 # Configuración de logging
 logging.basicConfig(
@@ -24,14 +33,15 @@ logging.basicConfig(
     ]
 )
 
-# Cargar variables de entorno
-load_dotenv()
+# Cargar variables de entorno - .env está en la raíz
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
 def load_config():
-    config_path = os.path.join(os.path.dirname(__file__), 'config.json')
+    # config.json está en la raíz
+    config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config.json')
     try:
         with open(config_path, 'r', encoding='utf-8') as f:
             return json.load(f)
@@ -64,16 +74,13 @@ def process_job(job, keywords, exclude_terms):
     if is_job_seen(url):
         return False
 
-    # Revisar términos excluidos
     title_lower = title.lower()
     if any(ex.lower() in title_lower for ex in exclude_terms):
         mark_job_seen(url, title, platform)
         return False
 
-    # Calcular ranking
     rank = calculate_ranking(title, keywords)
 
-    # Solo enviar si el ranking es > 3
     if rank > 3:
         mensaje = (
             f"🏢 <b>Nuevo trabajo en {platform}</b>\n"
@@ -83,7 +90,7 @@ def process_job(job, keywords, exclude_terms):
         )
         logging.info(f"Enviando: {title} (Ranking: {rank})")
         send_telegram(mensaje)
-        time.sleep(1.5) # Anti-spam
+        time.sleep(1.5)
         mark_job_seen(url, title, platform)
         return True
     
@@ -137,7 +144,6 @@ def main():
     minutos = config.get("SCHEDULE_MINUTES", 30)
     logging.info(f"🚀 Bot iniciado. Frecuencia: {minutos} minutos.")
     
-    # Primera ejecución
     buscar_trabajos()
 
     schedule.every(minutos).minutes.do(buscar_trabajos)

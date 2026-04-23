@@ -2,7 +2,8 @@ import sqlite3
 import os
 from contextlib import contextmanager
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'jobs.db')
+# Move DB to a data folder or keep in root relative to the project
+DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'jobs.db')
 
 @contextmanager
 def get_db_connection():

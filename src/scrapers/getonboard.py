@@ -27,8 +27,6 @@ def scrape_getonboard(search_term):
             if link and "/jobs/" in link and "getonbrd.com" not in link:
                 full_link = "https://www.getonbrd.com" + link
                 
-                # Title often comes with extra text (dates, companies). We take the first non-empty line as title 
-                # or just the stripped text for simplicity.
                 clean_title = title.split('\n')[0].strip() if '\n' in title else title
                 
                 jobs_found.append({

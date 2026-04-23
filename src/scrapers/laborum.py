@@ -21,13 +21,11 @@ def scrape_laborum(search_term):
         r = requests.get(url, headers=headers, timeout=15)
         soup = BeautifulSoup(r.text, "html.parser")
         
-        # Laborum commonly uses React so data might be in JSON or standard links.
-        # We will attempt to find <a> tags pointing to /empleos/
         jobs = soup.find_all("a", href=True)
         
         for job in jobs:
             link = job["href"]
-            if "-111" in link or re.search(r'-\d{6,}\.html$', link): # Typical laborum job ID structure
+            if "-111" in link or re.search(r'-\d{6,}\.html$', link):
                 if not link.startswith("http"):
                     full_link = "https://www.laborum.cl" + link
                 else:
@@ -35,7 +33,6 @@ def scrape_laborum(search_term):
                 
                 title = job.text.strip()
                 if not title:
-                    # Sometimes title is inside an h2 or h3
                     header = job.find(['h2', 'h3'])
                     if header:
                         title = header.text.strip()
