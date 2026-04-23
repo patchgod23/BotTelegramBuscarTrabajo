@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobBot Dashboard | Búsqueda Premium</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg-dark: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent-green: #10b981;
+            --accent-purple: #a855f7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% -20%, #1e293b, #0f172a);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 40px 0;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .logo h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo p {
+            color: var(--text-dim);
+            font-size: 1rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            box-shadow: none;
+        }
+
+        button.secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .filters {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        select, input, textarea {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        select:focus, input:focus, textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .job-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .job-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--glass-border);
+            padding: 25px;
+            border-radius: 20px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-out both;
+        }
+
+        .job-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .platform-badge {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+            padding: 4px 10px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        .job-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            line-height: 1.4;
+            color: #fff;
+        }
+
+        .job-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .job-date {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .view-btn {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: gap 0.3s;
+        }
+
+        .view-btn:hover {
+            gap: 10px;
+        }
+
+        /* Modal Settings */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-dark);
+            border: 1px solid var(--glass-border);
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            border-radius: 24px;
+            padding: 40px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .close-modal {
+            background: none;
+            color: var(--text-dim);
+            font-size: 2rem;
+            padding: 0;
+            box-shadow: none;
+            cursor: pointer;
+        }
+
+        .close-modal:hover {
+            color: white;
+            background: none;
+            transform: none;
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+        }
+
+        .form-section h3 {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            color: var(--accent-purple);
+        }
+
+        .tags-input {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .tag {
+            background: rgba(168, 85, 247, 0.2);
+            color: #d8b4fe;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tag .remove-tag {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #FFF;
+            border-bottom-color: var(--primary);
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+            margin: 50px auto;
+        }
+
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 100px 0;
+            grid-column: 1 / -1;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: var(--accent-green);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-green);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <h1>JobBot Dashboard</h1>
+                <p>Configura y encuentra tu próximo empleo</p>
+            </div>
+            <div class="controls">
+                <div class="status-badge">
+                    <div class="status-dot"></div>
+                    Bot Activo
+                </div>
+                <button class="secondary" id="configBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    Ajustes
+                </button>
+                <button id="scrapeBtn">Buscar Ahora</button>
+            </div>
+        </header>
+
+        <section class="filters">
+            <div class="filter-group">
+                <label>Plataforma</label>
+                <select id="platformFilter">
+                    <option value="">Todas</option>
+                    <option value="LinkedIn">LinkedIn</option>
+                    <option value="GetOnBoard">GetOnBoard</option>
+                    <option value="Laborum">Laborum</option>
+                    <option value="Computrabajo">Computrabajo</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Resultados</label>
+                <select id="limitFilter">
+                    <option value="20">20 más recientes</option>
+                    <option value="50" selected>50 más recientes</option>
+                    <option value="100">100 más recientes</option>
+                </select>
+            </div>
+        </section>
+
+        <div id="jobGrid" class="job-grid">
+            <!-- Jobs will be injected here -->
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="configModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Configuración de Búsqueda</h2>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            
+            <div class="form-section">
+                <h3>¿Qué puestos quieres buscar? (Separados por coma)</h3>
+                <textarea id="searchTermsInput" rows="3" placeholder="Ej: Vendedor, Contador, Python Developer..."></textarea>
+                <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: 5px;">El bot buscará estas palabras exactas en las plataformas.</p>
+            </div>
+
+            <div class="form-section">
+                <h3>Palabras clave para el Ranking (Separadas por coma)</h3>
+                <textarea id="keywordsInput" rows="3" placeholder="Ej: Excel, SAP, Junior, Remoto..."></textarea>
+                <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: 5px;">Estas palabras sumarán puntos a la oferta en el dashboard.</p>
+            </div>
+
+            <div class="form-section">
+                <h3>Términos a Excluir (Separados por coma)</h3>
+                <textarea id="excludeTermsInput" rows="2" placeholder="Ej: Senior, Manager, Presencial..."></textarea>
+            </div>
+
+            <div class="form-section">
+                <h3>Frecuencia de búsqueda (minutos)</h3>
+                <input type="number" id="scheduleInput" value="30">
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px;">
+                <button class="secondary" id="cancelBtn">Cancelar</button>
+                <button id="saveConfigBtn">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const jobGrid = document.getElementById('jobGrid');
+        const platformFilter = document.getElementById('platformFilter');
+        const limitFilter = document.getElementById('limitFilter');
+        const scrapeBtn = document.getElementById('scrapeBtn');
+        const configBtn = document.getElementById('configBtn');
+        const configModal = document.getElementById('configModal');
+        const closeModal = document.getElementById('closeModal');
+        const saveConfigBtn = document.getElementById('saveConfigBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+
+        // Inputs
+        const searchTermsInput = document.getElementById('searchTermsInput');
+        const keywordsInput = document.getElementById('keywordsInput');
+        const excludeTermsInput = document.getElementById('excludeTermsInput');
+        const scheduleInput = document.getElementById('scheduleInput');
+
+        let currentConfig = {};
+
+        async function fetchJobs() {
+            jobGrid.innerHTML = '<div class="empty-state"><span class="loader"></span></div>';
+            const platform = platformFilter.value;
+            const limit = limitFilter.value;
+            
+            try {
+                let url = `/api/jobs?limit=${limit}`;
+                if (platform) url += `&platform=${platform}`;
+                const response = await fetch(url);
+                const jobs = await response.json();
+                
+                if (jobs.length === 0) {
+                    jobGrid.innerHTML = '<div class="empty-state"><h3>No se encontraron ofertas.</h3><p>Prueba ajustando los filtros o inicia una búsqueda.</p></div>';
+                    return;
+                }
+
+                jobGrid.innerHTML = jobs.map((job, index) => `
+                    <div class="job-card" style="animation-delay: ${index * 0.05}s">
+                        <span class="platform-badge">${job.platform}</span>
+                        <h3 class="job-title">${job.title}</h3>
+                        <div class="job-footer">
+                            <span class="job-date">${new Date(job.timestamp).toLocaleDateString('es-CL', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'})}</span>
+                            <a href="${job.url}" target="_blank" class="view-btn">
+                                Ver Oferta 
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                            </a>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                jobGrid.innerHTML = '<div class="empty-state"><h3>Error al cargar ofertas.</h3></div>';
+            }
+        }
+
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/config');
+                currentConfig = await response.json();
+                
+                searchTermsInput.value = currentConfig.SEARCH_TERMS.join(', ');
+                keywordsInput.value = Object.keys(currentConfig.KEYWORDS).join(', ');
+                excludeTermsInput.value = currentConfig.EXCLUDE_TERMS.join(', ');
+                scheduleInput.value = currentConfig.SCHEDULE_MINUTES;
+            } catch (error) {
+                console.error("Error cargando config:", error);
+            }
+        }
+
+        saveConfigBtn.addEventListener('click', async () => {
+            const newConfig = {
+                ...currentConfig,
+                SEARCH_TERMS: searchTermsInput.value.split(',').map(s => s.trim()).filter(s => s),
+                EXCLUDE_TERMS: excludeTermsInput.value.split(',').map(s => s.trim()).filter(s => s),
+                SCHEDULE_MINUTES: parseInt(scheduleInput.value),
+                KEYWORDS: {}
+            };
+            
+            // Rebuild keywords with default weight of 3 for now
+            keywordsInput.value.split(',').map(s => s.trim()).filter(s => s).forEach(kw => {
+                newConfig.KEYWORDS[kw] = 3; 
+            });
+
+            try {
+                const response = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(newConfig)
+                });
+                if (response.ok) {
+                    alert('Configuración guardada! El bot usará estos términos en la próxima búsqueda.');
+                    configModal.classList.remove('active');
+                }
+            } catch (error) {
+                alert('Error al guardar configuración.');
+            }
+        });
+
+        scrapeBtn.addEventListener('click', async () => {
+            scrapeBtn.disabled = true;
+            scrapeBtn.textContent = 'Buscando...';
+            try {
+                await fetch('/api/scrape', { method: 'POST' });
+                alert('Búsqueda iniciada! Las ofertas aparecerán en unos momentos.');
+            } catch (error) {
+                alert('Error al iniciar búsqueda.');
+            }
+            setTimeout(() => {
+                scrapeBtn.disabled = false;
+                scrapeBtn.textContent = 'Buscar Ahora';
+                fetchJobs();
+            }, 5000);
+        });
+
+        configBtn.addEventListener('click', () => {
+            loadConfig();
+            configModal.classList.add('active');
+        });
+        closeModal.addEventListener('click', () => configModal.classList.remove('active'));
+        cancelBtn.addEventListener('click', () => configModal.classList.remove('active'));
+
+        platformFilter.addEventListener('change', fetchJobs);
+        limitFilter.addEventListener('change', fetchJobs);
+
+        fetchJobs();
+    </script>
+</body>
+</html>

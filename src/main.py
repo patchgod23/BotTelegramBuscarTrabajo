@@ -24,11 +24,13 @@ except ImportError:
     from scrapers.computrabajo import scrape_computrabajo
 
 # Configuración de logging
+LOG_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'bot.log')
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("bot.log"),
+        logging.FileHandler(LOG_PATH),
         logging.StreamHandler()
     ]
 )
@@ -48,6 +50,16 @@ def load_config():
     except Exception as e:
         logging.error(f"Error cargando config.json: {e}")
         return None
+
+def save_config(new_config):
+    config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config.json')
+    try:
+        with open(config_path, 'w', encoding='utf-8') as f:
+            json.dump(new_config, f, indent=4, ensure_ascii=False)
+        return True
+    except Exception as e:
+        logging.error(f"Error guardando config.json: {e}")
+        return False
 
 def send_telegram(msg):
     if not TELEGRAM_TOKEN or not CHAT_ID:

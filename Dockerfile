@@ -10,5 +10,8 @@ COPY . /app
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Run main.py when the container launches
-CMD ["python", "src/main.py"]
+# Expose the port the app runs on
+EXPOSE 8000
+
+# Run uvicorn directly
+CMD ["uvicorn", "src.api:app", "--host", "0.0.0.0", "--port", "8000"]

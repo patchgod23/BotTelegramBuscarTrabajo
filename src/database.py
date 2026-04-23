@@ -2,8 +2,8 @@ import sqlite3
 import os
 from contextlib import contextmanager
 
-# Move DB to a data folder or keep in root relative to the project
-DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'jobs.db')
+# Database path - using a dedicated folder for Docker volumes
+DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'jobs.db')
 
 @contextmanager
 def get_db_connection():
@@ -44,3 +44,22 @@ def mark_job_seen(url, title, platform):
             conn.commit()
         except sqlite3.IntegrityError:
             pass # Already exists
+
+def get_jobs(platform=None, min_rank=0, limit=100):
+    with get_db_connection() as conn:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        query = "SELECT * FROM seen_jobs WHERE 1=1"
+        params = []
+        
+        if platform:
+            query += " AND platform = ?"
+            params.append(platform)
+            
+        query += " ORDER BY timestamp DESC LIMIT ?"
+        params.append(limit)
+        
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        return [dict(row) for row in rows]
