@@ -1,0 +1,10 @@
+services:
+  bot:
+    build: .
+    volumes:
+      - ./jobs.db:/app/jobs.db
+      - ./config.json:/app/config.json
+      - ./bot.log:/app/bot.log
+    env_file:
+      - .env
+    restart: unless-stopped
